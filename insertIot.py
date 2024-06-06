@@ -31,39 +31,30 @@ def get_shift_and_hour(timestamp):
         4: ('08:40', '09:40'),
         5: ('09:40', '10:40'),
         6: ('10:40', '12:00'),
-        7: ('12:05', '13:05'),
-        8: ('13:05', '14:05'),
-        9: ('14:05', '15:05'),
-        10: ('15:05', '16:20'),
-        11: ('16:20', '17:30'),
+        7: ('12:00', '13:00'),
+        8: ('13:00', '14:00')
     }
 
     shift_B_hours = {
-        1: ('18:00', '18:20'),
-        2: ('18:20', '19:20'),
-        3: ('19:20', '19:40'),
-        4: ('20:40', '21:45'),
-        5: ('21:45', '22:45'),
-        6: ('22:45', '23:45'),
-        7: ('23:45', '01:00'),
-        8: ('01:00', '02:00'),
-        9: ('02:00', '03:00'),
-        10: ('03:00', '04:15'),
-        11: ('04:15', '05:30'),
+        1: ('14:00', '14:20'),
+        2: ('14:20', '15:20'),
+        3: ('15:20', '16:35'),
+        4: ('16:35', '17:35'),
+        5: ('17:35', '18:35'),
+        6: ('18:35', '19:55'),
+        7: ('19:55', '20:55'),
+        8: ('20:55', '22:00')
     }
 
     ordinal_hours = {
-       '1': 1,
-        '2': 2,
-        '3': 3,
-        '4': 4,
-        '5': 5,
-        '6': 6,
-        '7': 7,
-        '8': 8,
-        '9': 9,
-        '10': 10,
-        '11': 11
+        1: '1',
+        2: '2',
+        3: '3',
+        4: '4',
+        5: '5',
+        6: '6',
+        7: '7',
+        8: '8'
     }
     
     timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
@@ -99,25 +90,19 @@ def get_cumulative_piece_count(connection,machine, timestamp):
         4: ('08:40', '09:40'),
         5: ('09:40', '10:40'),
         6: ('10:40', '12:00'),
-        7: ('12:05', '13:05'),
-        8: ('13:05', '14:05'),
-        9: ('14:05', '15:05'),
-        10: ('15:05', '16:20'),
-        11: ('16:20', '17:30'),
+        7: ('12:00', '13:00'),
+        8: ('13:00', '14:00')
     }
 
     shift_B_hours = {
-        1: ('18:00', '18:20'),
-        2: ('18:20', '19:20'),
-        3: ('19:20', '19:40'),
-        4: ('20:40', '21:45'),
-        5: ('21:45', '22:45'),
-        6: ('22:45', '23:45'),
-        7: ('23:45', '01:00'),
-        8: ('01:00', '02:00'),
-        9: ('02:00', '03:00'),
-        10: ('03:00', '04:15'),
-        11: ('04:15', '05:30'),
+        1: ('14:00', '14:20'),
+        2: ('14:20', '15:20'),
+        3: ('15:20', '16:35'),
+        4: ('16:35', '17:35'),
+        5: ('17:35', '18:35'),
+        6: ('18:35', '19:55'),
+        7: ('19:55', '20:55'),
+        8: ('20:55', '22:00')
     }
 
 
@@ -130,10 +115,7 @@ def get_cumulative_piece_count(connection,machine, timestamp):
         '5': 5,
         '6': 6,
         '7': 7,
-        '8': 8,
-        '9': 9,
-        '10': 10,
-        '11': 11
+        '8': 8
     }
 
     hour = hour_mapping[hour_str]
@@ -236,13 +218,12 @@ def main():
             ma1_ts = str(getMachineTS(conn,machine1))
             ma2_ts = str(getMachineTS(conn,machine2))
             ma3_ts = str(getMachineTS(conn,machine3))
-           
+            print(getMachineTS(conn,machine1))
 
             # Determine shift and hour
             m1shift, m1hour = get_shift_and_hour(ma1_ts)
             m2shift, m2hour = get_shift_and_hour(ma2_ts)
             m3shift, m3hour = get_shift_and_hour(ma3_ts)
-           
 
             #print(f"Shift: {shift}, Hour: {hour}")
 
@@ -262,9 +243,6 @@ def main():
             op2_pieces = get_piece_count(conn,m2hour, get_userid(conn,date,m2shift,'Pullout 2')[0], date, m2shift)
             op3_pieces = get_piece_count(conn,m3hour, get_userid(conn,date,m3shift,'LineEnd')[0], date, m3shift)
 
-            print(m1shift,m2shift,m3shift)
-            print(ma1_ts,ma2_ts,ma3_ts)
-            print(user_id1,user_id2,user_id3)
 
             if ((machine1_iot != op1_pieces) and (machine1_iot > op1_pieces)):
                 insert_piece_count(conn, user_id1, ma1_ts, 'Pullout 1',machine1_iot - op1_pieces, m1shift, m1hour, lineNo1)
