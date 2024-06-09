@@ -32,24 +32,27 @@ def get_shift_and_hour(timestamp):
         5: ('09:40', '10:40'),
         6: ('10:40', '12:00'),
         7: ('12:00', '13:00'),
-        8: ('13:00', '14:00'),
-        9: ('14:00', '15:00'),  
-        10: ('15:00', '16:00'),  
-        11: ('16:00', '17:30')  
+        8: ('13:00', '14:00')
+        #9: ('14:00', '15:00'),  
+        #10: ('15:00', '16:00'),  
+        #11: ('16:00', '17:30')  
     }
 
     shift_B_hours = {
-        1: ('18:00', '19:00'),  # Start of shift B
-        2: ('19:00', '20:00'),  # Adjusted for 11 hours
-        3: ('20:00', '21:15'),  # Adjusted for 11 hours
-        4: ('21:15', '22:15'),  # Adjusted for 11 hours
-        5: ('22:15', '23:15'),  # Adjusted for 11 hours
-        6: ('23:15', '00:35'),  # Adjusted for 11 hours, next day
-        7: ('00:35', '01:35'),  # Adjusted for 11 hours, next day
-        8: ('01:35', '02:40'),  # Adjusted for 11 hours, next day
-        9: ('02:40', '03:45'),  # Adjusted for 11 hours, next day
-        10: ('03:45', '05:00'),  # Adjusted for 11 hours, next day
-        11: ('05:00', '05:30')  # End of shift B, next day
+        1: ('14:00', '15:00'),  
+        2: ('15:00', '16:00'),  
+        3: ('16:00', '17:00') 
+        4: ('17:00', '18:00'),  # Start of shift B
+        5: ('18:00', '19:00'),  # Adjusted for 11 hours
+        6: ('19:00', '20:15'),  # Adjusted for 11 hours
+        7: ('20:15', '21:15'),  # Adjusted for 11 hours
+        8: ('21:15', '22:00')  # Adjusted for 11 hours
+        #6: ('23:15', '00:35'),  # Adjusted for 11 hours, next day
+        #7: ('00:35', '01:35'),  # Adjusted for 11 hours, next day
+        #8: ('01:35', '02:40'),  # Adjusted for 11 hours, next day
+        #9: ('02:40', '03:45'),  # Adjusted for 11 hours, next day
+        #10: ('03:45', '05:00'),  # Adjusted for 11 hours, next day
+        #11: ('05:00', '05:30')  # End of shift B, next day
     }
 
     ordinal_hours = {
@@ -72,11 +75,11 @@ def get_shift_and_hour(timestamp):
     
     for hour, (start, end) in shift_A_hours.items():
         if time_of_day >= datetime.strptime(start, '%H:%M').time() and time_of_day < datetime.strptime(end, '%H:%M').time():
-            return 'C', ordinal_hours[hour]
+            return 'A', ordinal_hours[hour]
     
     for hour, (start, end) in shift_B_hours.items():
         if time_of_day >= datetime.strptime(start, '%H:%M').time() and time_of_day < datetime.strptime(end, '%H:%M').time():
-            return 'D', ordinal_hours[hour]
+            return 'B', ordinal_hours[hour]
     
     return None, None  # If the timestamp doesn't fall within any shift hours
 
@@ -101,24 +104,24 @@ def get_cumulative_piece_count(connection,machine, timestamp):
         5: ('09:40', '10:40'),
         6: ('10:40', '12:00'),
         7: ('12:00', '13:00'),
-        8: ('13:00', '14:00'),
-        9: ('14:00', '15:00'),  
-        10: ('15:00', '16:00'),  
-        11: ('16:00', '17:30')  
+        8: ('13:00', '14:00')
+       # 9: ('14:00', '15:00'),  
+        #10: ('15:00', '16:00'),  
+        #11: ('16:00', '17:30')  
     }
 
     shift_B_hours = {
-         1: ('18:00', '19:00'),  # Start of shift B
-        2: ('19:00', '20:00'),  # Adjusted for 11 hours
-        3: ('20:00', '21:15'),  # Adjusted for 11 hours
-        4: ('21:15', '22:15'),  # Adjusted for 11 hours
-        5: ('22:15', '23:15'),  # Adjusted for 11 hours
-        6: ('23:15', '00:35'),  # Adjusted for 11 hours, next day
-        7: ('00:35', '01:35'),  # Adjusted for 11 hours, next day
-        8: ('01:35', '02:40'),  # Adjusted for 11 hours, next day
-        9: ('02:40', '03:45'),  # Adjusted for 11 hours, next day
-        10: ('03:45', '05:00'),  # Adjusted for 11 hours, next day
-        11: ('05:00', '05:30')  # End of shift B, next day
+        1: ('14:00', '15:00'),  
+        2: ('15:00', '16:00'),  
+        3: ('16:00', '17:00') 
+        4: ('17:00', '18:00'),  # Start of shift B
+        5: ('18:00', '19:00'),  # Adjusted for 11 hours
+        6: ('19:00', '20:15'),  # Adjusted for 11 hours
+        7: ('20:15', '21:15'),  # Adjusted for 11 hours
+        8: ('21:15', '22:00')  # Adjusted for 11 hours
+       # 9: ('02:40', '03:45'),  # Adjusted for 11 hours, next day
+        #10: ('03:45', '05:00'),  # Adjusted for 11 hours, next day
+        #11: ('05:00', '05:30')  # End of shift B, next day
     }
 
     # Define mapping for hour strings to integers
@@ -141,9 +144,9 @@ def get_cumulative_piece_count(connection,machine, timestamp):
     
     start_time, end_time = None, None
     
-    if shift == 'C':
+    if shift == 'A':
         start_time, end_time = shift_A_hours[hour]
-    elif shift == 'D':
+    elif shift == 'B':
         start_time, end_time = shift_B_hours[hour]
     
     start_datetime = datetime.strptime(f"{timestamp[:10]} {start_time}", "%Y-%m-%d %H:%M")
