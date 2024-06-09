@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 import mysql.connector
 from mysql.connector import Error
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -40,7 +40,9 @@ def insert_data(data):
 @app.route('/', methods=['POST'])
 def receive_data():
     data = request.json
-    data['timeStamp'] = datetime.strptime(data['timeStamp'], "%Y-%m-%d %H:%M:%S")
+    utc_time = datetime.strptime(data['timeStamp'], "%Y-%m-%d %H:%M:%S")
+    ist_time = utc_time + timedelta(hours=5, minutes=30)
+    data['timeStamp'] = ist_time
     
     if insert_data(data):
         return jsonify({"message": "Data inserted successfully"}), 201
