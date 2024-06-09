@@ -41,7 +41,7 @@ def get_shift_and_hour(timestamp):
     shift_B_hours = {
         1: ('14:00', '15:00'),  
         2: ('15:00', '16:00'),  
-        3: ('16:00', '17:00') 
+        3: ('16:00', '17:00'), 
         4: ('17:00', '18:00'),  # Start of shift B
         5: ('18:00', '19:00'),  # Adjusted for 11 hours
         6: ('19:00', '20:15'),  # Adjusted for 11 hours
@@ -97,7 +97,7 @@ def get_cumulative_piece_count(connection,machine, timestamp):
 
     # Define shift hours inside the function
     shift_A_hours = {
-       1: ('06:00', '06:20'),
+        1: ('06:00', '06:20'),
         2: ('06:20', '07:40'),
         3: ('07:40', '08:40'),
         4: ('08:40', '09:40'),
@@ -113,7 +113,7 @@ def get_cumulative_piece_count(connection,machine, timestamp):
     shift_B_hours = {
         1: ('14:00', '15:00'),  
         2: ('15:00', '16:00'),  
-        3: ('16:00', '17:00') 
+        3: ('16:00', '17:00'), 
         4: ('17:00', '18:00'),  # Start of shift B
         5: ('18:00', '19:00'),  # Adjusted for 11 hours
         6: ('19:00', '20:15'),  # Adjusted for 11 hours
