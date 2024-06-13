@@ -5,6 +5,7 @@ import random
 import string
 import time
 import math
+import pytz
 
 # Connect to your SQLite database
 def create_connection():
@@ -30,7 +31,7 @@ def get_shift_for_line(conn,date, line_no):
     cursor = conn.cursor()
 
     # Get the current time
-    current_time = datetime.now().time()
+    current_time = datetime.now(pytz.timezone('Asia/Colombo')).time()
 
     # Define the time ranges
     if current_time >= datetime.strptime('06:00:00', '%H:%M:%S').time() and current_time < datetime.strptime('14:00:00', '%H:%M:%S').time():
@@ -227,7 +228,7 @@ def get_userid(connection,date, shift, operation):
                 return None, None
             
 def get_adjusted_date():
-                now = datetime.now()
+                now = datetime.now(pytz.timezone('Asia/Colombo'))
                 if now.hour < 6:
                     adjusted_date = now - timedelta(days=1)
                 else:
@@ -250,9 +251,9 @@ def main():
             mId2 = 22
             mId3 = 25
             #print(getMachineTS(conn,machine1))
-            ma1_ts = datetime.now()#str(getMachineTS(conn,mId1))
-            ma2_ts = datetime.now()#str(getMachineTS(conn,mId2))
-            ma3_ts = datetime.now()#str(getMachineTS(conn,mId3))
+            ma1_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId1))
+            ma2_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId2))
+            ma3_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId3))
             #print(getMachineTS(conn,machine1))
             
             date = get_adjusted_date()
