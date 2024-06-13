@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import random
 import string
 import time
+import math
 
 # Connect to your SQLite database
 def create_connection():
@@ -22,156 +23,156 @@ def create_connection():
         print(f"Error: {e}")
         return None
 
+def get_shift_for_line(conn,date, line_no):
+    # Connect to your MySQL database
 
-def get_shift_and_hour(timestamp):
-    shift_A_hours = {
-        1: ('06:00', '06:20'),
-        2: ('06:20', '07:40'),
-        3: ('07:40', '08:40'),
-        4: ('08:40', '09:40'),
-        5: ('09:40', '10:40'),
-        6: ('10:40', '12:00'),
-        7: ('12:00', '13:00'),
-        8: ('13:00', '14:00')
-        #9: ('14:00', '15:00'),  
-        #10: ('15:00', '16:00'),  
-        #11: ('16:00', '17:30')  
-    }
-
-    shift_B_hours = {
-        1: ('14:00', '15:00'),  
-        2: ('15:00', '16:00'),  
-        3: ('16:00', '17:00'), 
-        4: ('17:00', '18:00'),  # Start of shift B
-        5: ('18:00', '19:00'),  # Adjusted for 11 hours
-        6: ('19:00', '20:15'),  # Adjusted for 11 hours
-        7: ('20:15', '21:15'),  # Adjusted for 11 hours
-        8: ('21:15', '22:00')  # Adjusted for 11 hours
-        #6: ('23:15', '00:35'),  # Adjusted for 11 hours, next day
-        #7: ('00:35', '01:35'),  # Adjusted for 11 hours, next day
-        #8: ('01:35', '02:40'),  # Adjusted for 11 hours, next day
-        #9: ('02:40', '03:45'),  # Adjusted for 11 hours, next day
-        #10: ('03:45', '05:00'),  # Adjusted for 11 hours, next day
-        #11: ('05:00', '05:30')  # End of shift B, next day
-    }
-
-    ordinal_hours = {
-        1: '1',
-        2: '2',
-        3: '3',
-        4: '4',
-        5: '5',
-        6: '6',
-        7: '7',
-        8: '8',
-        9: '9',
-        10: '10',
-        11: '11'
-    }
-    
-    
-    timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
-    time_of_day = timestamp.time()
-    
-    for hour, (start, end) in shift_A_hours.items():
-        if time_of_day >= datetime.strptime(start, '%H:%M').time() and time_of_day < datetime.strptime(end, '%H:%M').time():
-            return 'A', ordinal_hours[hour]
-    
-    for hour, (start, end) in shift_B_hours.items():
-        if time_of_day >= datetime.strptime(start, '%H:%M').time() and time_of_day < datetime.strptime(end, '%H:%M').time():
-            return 'B', ordinal_hours[hour]
-    
-    return None, None  # If the timestamp doesn't fall within any shift hours
-
-def getMachineTS(conn,machine):
-    select_query = "SELECT timestamp FROM iotData WHERE machine=%s ORDER BY timestamp DESC LIMIT 1"
+    # Create a cursor object
     cursor = conn.cursor()
-    cursor.execute(select_query, (machine,))
-    result = cursor.fetchone()
-    return result[0]
 
-def get_cumulative_piece_count(connection,machine, timestamp):
-    shift, hour_str = get_shift_and_hour(timestamp)
-    if shift is None or hour_str is None:
-        return 0
+    # Get the current time
+    current_time = datetime.now().time()
 
-    # Define shift hours inside the function
-    shift_A_hours = {
-        1: ('06:00', '06:20'),
-        2: ('06:20', '07:40'),
-        3: ('07:40', '08:40'),
-        4: ('08:40', '09:40'),
-        5: ('09:40', '10:40'),
-        6: ('10:40', '12:00'),
-        7: ('12:00', '13:00'),
-        8: ('13:00', '14:00')
-       # 9: ('14:00', '15:00'),  
-        #10: ('15:00', '16:00'),  
-        #11: ('16:00', '17:30')  
-    }
+    # Define the time ranges
+    if current_time >= datetime.strptime('06:00:00', '%H:%M:%S').time() and current_time < datetime.strptime('14:00:00', '%H:%M:%S').time():
+        time_range = '6am to 2pm'
+    elif current_time >= datetime.strptime('14:00:00', '%H:%M:%S').time() and current_time < datetime.strptime('22:00:00', '%H:%M:%S').time():
+        time_range = '2pm to 10pm'
+    elif current_time >= datetime.strptime('22:00:00', '%H:%M:%S').time() or current_time < datetime.strptime('06:00:00', '%H:%M:%S').time():
+        time_range = '6pm to 6am'
 
-    shift_B_hours = {
-        1: ('14:00', '15:00'),  
-        2: ('15:00', '16:00'),  
-        3: ('16:00', '17:00'), 
-        4: ('17:00', '18:00'),  # Start of shift B
-        5: ('18:00', '19:00'),  # Adjusted for 11 hours
-        6: ('19:00', '20:15'),  # Adjusted for 11 hours
-        7: ('20:15', '21:15'),  # Adjusted for 11 hours
-        8: ('21:15', '22:00')  # Adjusted for 11 hours
-       # 9: ('02:40', '03:45'),  # Adjusted for 11 hours, next day
-        #10: ('03:45', '05:00'),  # Adjusted for 11 hours, next day
-        #11: ('05:00', '05:30')  # End of shift B, next day
-    }
-
-    # Define mapping for hour strings to integers
-    hour_mapping = {
-        '1': 1,
-        '2': 2,
-        '3': 3,
-        '4': 4,
-        '5': 5,
-        '6': 6,
-        '7': 7,
-        '8': 8,
-        '9': 9,
-        '10': 10,
-        '11': 11
-    }
-
-
-    hour = hour_mapping[hour_str]
-    
-    start_time, end_time = None, None
-    
-    if shift == 'A':
-        start_time, end_time = shift_A_hours[hour]
-    elif shift == 'B':
-        start_time, end_time = shift_B_hours[hour]
-    
-    start_datetime = datetime.strptime(f"{timestamp[:10]} {start_time}", "%Y-%m-%d %H:%M")
-    end_datetime = datetime.strptime(f"{timestamp[:10]} {end_time}", "%Y-%m-%d %H:%M")
-    
-    cursor = connection.cursor(dictionary=True)
-    
-    query = """
-    SELECT pieceCount FROM iotData
-    WHERE machine = %s AND timestamp BETWEEN %s AND %s
-    ORDER BY timestamp
+    # Construct the SQL query
+    shift_query = """
+    SELECT DISTINCT shift
+    FROM dailyPlan
+    WHERE date = %s AND lineno LIKE %s;
     """
-    cursor.execute(query, (machine, start_datetime, end_datetime))
-    results = cursor.fetchall()
-    
-    cursor.close()
-    
-    if results:
-        start_piece_count = results[0]['pieceCount']
-        end_piece_count = results[-1]['pieceCount']
-        return end_piece_count - start_piece_count
-    else:
-        return 0
 
-def get_piece_count(connection,hour, user_id, date, shift):
+    # Execute the query
+    cursor.execute(shift_query, (date, line_no))
+
+    # Fetch the results
+    shifts = cursor.fetchall()
+
+    # Close cursor and connection
+    cursor.close()
+    # Determine the shift based on the conditions
+    if shifts:
+        if any(shift[0] in ('C', 'D') for shift in shifts):
+            if time_range == '6am to 2pm':
+                return 'C'
+            else:
+                return 'D'
+        else:
+            if time_range == '6am to 2pm':
+                return 'A'
+            else:
+                return 'B'
+    else:
+        return 'No shifts found'
+
+
+def get_hour_slot_and_times(shift, timestamp):
+    time = timestamp.time()
+    if shift == 'A':
+        slots = [
+            (timedelta(hours=6, minutes=0), timedelta(hours=6, minutes=20)),
+            (timedelta(hours=6, minutes=20), timedelta(hours=7, minutes=20)),
+            (timedelta(hours=7, minutes=20), timedelta(hours=8, minutes=20)),
+            (timedelta(hours=8, minutes=20), timedelta(hours=9, minutes=20)),
+            (timedelta(hours=9, minutes=20), timedelta(hours=10, minutes=20)),
+            (timedelta(hours=10, minutes=20), timedelta(hours=11, minutes=20)),
+            (timedelta(hours=11, minutes=20), timedelta(hours=12, minutes=20)),
+            (timedelta(hours=12, minutes=20), timedelta(hours=14, minutes=0)),
+        ]
+    elif shift == 'B':
+        slots = [
+            (timedelta(hours=14, minutes=0), timedelta(hours=14, minutes=20)),
+            (timedelta(hours=14, minutes=20), timedelta(hours=15, minutes=35)),
+            (timedelta(hours=15, minutes=35), timedelta(hours=16, minutes=50)),
+            (timedelta(hours=16, minutes=50), timedelta(hours=18, minutes=5)),
+            (timedelta(hours=18, minutes=5), timedelta(hours=19, minutes=20)),
+            (timedelta(hours=19, minutes=20), timedelta(hours=20, minutes=35)),
+            (timedelta(hours=20, minutes=35), timedelta(hours=21, minutes=50)),
+            (timedelta(hours=21, minutes=50), timedelta(hours=22, minutes=0)),
+        ]
+    elif shift == 'C':
+        slots = [
+            (timedelta(hours=6, minutes=0), timedelta(hours=6, minutes=20)),
+            (timedelta(hours=6, minutes=20), timedelta(hours=7, minutes=20)),
+            (timedelta(hours=7, minutes=20), timedelta(hours=8, minutes=40)),
+            (timedelta(hours=8, minutes=40), timedelta(hours=10, minutes=0)),
+            (timedelta(hours=10, minutes=0), timedelta(hours=11, minutes=20)),
+            (timedelta(hours=11, minutes=20), timedelta(hours=12, minutes=40)),
+            (timedelta(hours=12, minutes=40), timedelta(hours=14, minutes=0)),
+            (timedelta(hours=14, minutes=0), timedelta(hours=15, minutes=20)),
+            (timedelta(hours=15, minutes=20), timedelta(hours=16, minutes=40)),
+            (timedelta(hours=16, minutes=40), timedelta(hours=17, minutes=15))
+        ]
+    elif shift == 'D':
+        slots = [
+            (timedelta(hours=18, minutes=0), timedelta(hours=18, minutes=20)),
+            (timedelta(hours=18, minutes=20), timedelta(hours=19, minutes=40)),
+            (timedelta(hours=19, minutes=40), timedelta(hours=21, minutes=0)),
+            (timedelta(hours=21, minutes=0), timedelta(hours=22, minutes=20)),
+            (timedelta(hours=22, minutes=20), timedelta(hours=23, minutes=40)),
+            (timedelta(hours=23, minutes=40), timedelta(hours=23, minutes=59, seconds=59)),
+            (timedelta(hours=0, minutes=0), timedelta(hours=1, minutes=20)),
+            (timedelta(hours=1, minutes=20), timedelta(hours=2, minutes=40)),
+            (timedelta(hours=2, minutes=40), timedelta(hours=4, minutes=0)),
+            (timedelta(hours=4, minutes=0), timedelta(hours=5, minutes=20))
+        ]
+    
+    timestamp_delta = timedelta(hours=timestamp.hour, minutes=timestamp.minute, seconds=timestamp.second)
+    for i, (start, end) in enumerate(slots):
+        if start <= timestamp_delta < end:
+            start_time = datetime.combine(timestamp.date(), (datetime.min + start).time())
+            end_time = datetime.combine(timestamp.date() if end > start else timestamp.date() + timedelta(days=1), (datetime.min + end).time())
+            return i+1, start_time, end_time
+
+    # If the timestamp doesn't align with any slot, find the closest slot
+    closest_slot = min(slots, key=lambda x: abs((timestamp_delta - x[0]).total_seconds()))
+    start_time = datetime.combine(timestamp.date(), (datetime.min + closest_slot[0]).time())
+    end_time = datetime.combine(timestamp.date(), (datetime.min + closest_slot[1]).time())
+    return slots.index(closest_slot) + 1, start_time, end_time
+
+def ordinal(n):
+    return "%d%s" % (n, "tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4])
+
+def get_piece_count(conn,timestamp, machineId, stitchCountPerPiece, shift):
+    slot_number, start_time, end_time = get_hour_slot_and_times(shift, timestamp)
+    if slot_number is None:
+        raise ValueError("Invalid timestamp for the given shift.")
+
+    cursor = conn.cursor()
+    
+    if machineId == 25:
+        query = """
+        SELECT SUM(incPieceCountAccepted)
+        FROM machine_data
+        WHERE machineId = %s
+        AND timestamp >= %s
+        AND timestamp < %s
+        """
+    else:
+        query = """
+        SELECT SUM(incStitchCount)
+        FROM machine_data
+        WHERE machineId = %s
+        AND timestamp >= %s
+        AND timestamp < %s
+        """
+    
+    cursor.execute(query, (machineId, start_time, end_time))
+    total_count = cursor.fetchone()[0] or 0
+
+    cursor.close()
+    if machineId == 25:
+        piece_count = total_count
+    else:
+        piece_count = math.floor(total_count / stitchCountPerPiece)
+    return piece_count, f"{ordinal(slot_number)} hour"
+
+def get_op_piece_count(connection,hour, user_id, date, shift):
     cursor = connection.cursor(dictionary=True)
 
     query = """
@@ -208,7 +209,7 @@ def get_userid(connection,date, shift, operation):
 
             # Define the query
             query = """
-            SELECT userid, lineNo
+            SELECT userid, lineNo, Shift
             FROM operatorDailyAssignment
             WHERE date = %s AND shift = %s AND operation = %s LIMIT 1
             """
@@ -221,9 +222,17 @@ def get_userid(connection,date, shift, operation):
             
             # Return the userid and lineNo if a result is found
             if result:
-                return result['userid'], result['lineNo']
+                return result['userid'], result['lineNo'], result['Shift']
             else:
                 return None, None
+            
+def get_adjusted_date():
+                now = datetime.now()
+                if now.hour < 6:
+                    adjusted_date = now - timedelta(days=1)
+                else:
+                    adjusted_date = now
+                return adjusted_date.date()
 
 
 def main():
@@ -237,46 +246,44 @@ def main():
             machine1 = 'UP007P1'
             machine2 = 'UP007P2'
             machine3 = 'UP007E'
-            ma1_ts = str(getMachineTS(conn,machine1))
-            ma2_ts = str(getMachineTS(conn,machine2))
-            ma3_ts = str(getMachineTS(conn,machine3))
-            print(getMachineTS(conn,machine1))
+            mId1 = 21
+            mId2 = 22
+            mId3 = 25
+            #print(getMachineTS(conn,machine1))
+            ma1_ts = datetime.now()#str(getMachineTS(conn,mId1))
+            ma2_ts = datetime.now()#str(getMachineTS(conn,mId2))
+            ma3_ts = datetime.now()#str(getMachineTS(conn,mId3))
+            #print(getMachineTS(conn,machine1))
+            
+            date = get_adjusted_date()
+            lineshift = get_shift_for_line(conn,date, 'UP007%')
+            print(lineshift)
+            user_id1,lineNo1,m1shift = get_userid(conn,date,lineshift,'Pullout 1')
+            user_id2,lineNo2,m2shift = get_userid(conn,date,lineshift,'Pullout 2')
+            user_id3,lineNo3,m3shift = get_userid(conn,date,lineshift, 'LineEnd')
+            
+            machine1_iot, m1hour = get_piece_count(conn, ma1_ts, mId1, 739, m1shift)
+            machine2_iot, m2hour = get_piece_count(conn, ma2_ts, mId2, 712, m2shift)
+            machine3_iot, m3hour = get_piece_count(conn, ma3_ts, mId3, 739, m3shift)
+            print(ma1_ts,ma2_ts,ma3_ts)
 
-            # Determine shift and hour
-            m1shift, m1hour = get_shift_and_hour(ma1_ts)
-            m2shift, m2hour = get_shift_and_hour(ma2_ts)
-            m3shift, m3hour = get_shift_and_hour(ma3_ts)
-
-            #print(f"Shift: {shift}, Hour: {hour}")
-
-            # Assuming user ID 101 and date '2024-06-03'
-
-            date = datetime.now().strftime('%Y-%m-%d')
-            print(date)
-            user_id1,lineNo1 = get_userid(conn,date,m1shift,'Pullout 1')
-            user_id2,lineNo2 = get_userid(conn,date,m2shift,'Pullout 2')
-            user_id3,lineNo3 = get_userid(conn,date,m3shift,'LineEnd')
-
-            machine1_iot = get_cumulative_piece_count(conn,machine1, ma1_ts)
-            machine2_iot = get_cumulative_piece_count(conn,machine2, ma2_ts)
-            machine3_iot = get_cumulative_piece_count(conn,machine3, ma3_ts)
-
-            op1_pieces = get_piece_count(conn,m1hour, get_userid(conn,date,m1shift,'Pullout 1')[0], date, m1shift)
-            op2_pieces = get_piece_count(conn,m2hour, get_userid(conn,date,m2shift,'Pullout 2')[0], date, m2shift)
-            op3_pieces = get_piece_count(conn,m3hour, get_userid(conn,date,m3shift,'LineEnd')[0], date, m3shift)
-
-
+            op1_pieces = get_op_piece_count(conn,m1hour, user_id1, date, m1shift)
+            op2_pieces = get_op_piece_count(conn,m2hour, user_id2, date, m2shift)
+            op3_pieces = get_op_piece_count(conn,m3hour, user_id3, date, m3shift)
+        
             if ((machine1_iot != op1_pieces) and (machine1_iot > op1_pieces)):
                 insert_piece_count(conn, user_id1, ma1_ts, 'Pullout 1',machine1_iot - op1_pieces, m1shift, m1hour, lineNo1)
-                print(machine1_iot,op1_pieces,lineNo1,'Pullout 1')
+                print (user_id1,'-',lineNo1,'-',m1shift,'-',m1hour,'-',machine1_iot,',',op1_pieces)
 
             if ((machine2_iot != op2_pieces) and (machine2_iot > op2_pieces)):
                 insert_piece_count(conn, user_id2, ma2_ts, 'Pullout 2',machine2_iot - op2_pieces, m2shift, m2hour, lineNo2)
-                print(machine2_iot,op2_pieces,lineNo2,'Pullout 2')
-
+                print (user_id2,'-',lineNo2,'-',m2shift,'-',m2hour,'-',machine2_iot,',',op2_pieces)
+                
             if ((machine3_iot != op3_pieces) and (machine3_iot > op3_pieces)):
                 insert_piece_count(conn, user_id3, ma3_ts, 'LineEnd',machine3_iot - op3_pieces, m3shift, m3hour, lineNo3)
-                print(machine3_iot,op3_pieces,lineNo3,'LineEnd')
+                print (user_id3,'-',lineNo3,'-',m3shift,'-',m3hour,'-',machine3_iot,',',op3_pieces)
+
+        
         except Error as e:
             print(f"Error during database operations: {e}")
 
