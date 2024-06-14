@@ -36,6 +36,8 @@ def get_shift_for_line(conn,date, line_no):
     # Define the time ranges
     if current_time >= datetime.strptime('06:00:00', '%H:%M:%S').time() and current_time < datetime.strptime('14:00:00', '%H:%M:%S').time():
         time_range = '6am to 2pm'
+    elif current_time >= datetime.strptime('14:00:00', '%H:%M:%S').time() and current_time < datetime.strptime('18:00:00', '%H:%M:%S').time():
+        time_range = '2pm to 6pm'
     elif current_time >= datetime.strptime('14:00:00', '%H:%M:%S').time() and current_time < datetime.strptime('22:00:00', '%H:%M:%S').time():
         time_range = '2pm to 10pm'
     elif current_time >= datetime.strptime('22:00:00', '%H:%M:%S').time() or current_time < datetime.strptime('06:00:00', '%H:%M:%S').time():
@@ -59,11 +61,11 @@ def get_shift_for_line(conn,date, line_no):
     # Determine the shift based on the conditions
     if shifts:
         if any(shift[0] in ('C', 'D') for shift in shifts):
-            if time_range == '6am to 2pm':
+            if time_range == '6am to 2pm' or time_range == '2pm to 6pm':
                 return 'C'
             else:
                 return 'D'
-        else:
+        elif any(shift[0] in ('A', 'B') for shift in shifts):
             if time_range == '6am to 2pm':
                 return 'A'
             else:
@@ -171,7 +173,7 @@ def get_piece_count(conn,timestamp, machineId, stitchCountPerPiece, shift):
         piece_count = total_count
     else:
         piece_count = math.floor(total_count / stitchCountPerPiece)
-    return piece_count, slot_number
+    return piece_count, f"{ordinal(slot_number)} hour"
 
 def get_op_piece_count(connection,hour, user_id, date, shift):
     cursor = connection.cursor(dictionary=True)
