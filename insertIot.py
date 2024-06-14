@@ -171,7 +171,7 @@ def get_piece_count(conn,timestamp, machineId, stitchCountPerPiece, shift):
         piece_count = total_count
     else:
         piece_count = math.floor(total_count / stitchCountPerPiece)
-    return piece_count, f"{ordinal(slot_number)} hour"
+    return piece_count, slot_number
 
 def get_op_piece_count(connection,hour, user_id, date, shift):
     cursor = connection.cursor(dictionary=True)
