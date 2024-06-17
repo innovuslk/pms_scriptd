@@ -173,7 +173,7 @@ def get_piece_count(conn,timestamp, machineId, stitchCountPerPiece, shift):
         piece_count = total_count
     else:
         piece_count = math.floor(total_count / stitchCountPerPiece)
-    return piece_count, f"{ordinal(slot_number)} hour"
+    return piece_count, slot_number
 
 def get_op_piece_count(connection,hour, user_id, date, shift):
     cursor = connection.cursor(dictionary=True)
@@ -260,7 +260,7 @@ def main():
             
             date = get_adjusted_date()
             lineshift = get_shift_for_line(conn,date, 'UP007%')
-            print(lineshift)
+            #print(lineshift)
             user_id1,lineNo1,m1shift = get_userid(conn,date,lineshift,'Pullout 1')
             user_id2,lineNo2,m2shift = get_userid(conn,date,lineshift,'Pullout 2')
             user_id3,lineNo3,m3shift = get_userid(conn,date,lineshift, 'LineEnd')
@@ -268,7 +268,7 @@ def main():
             machine1_iot, m1hour = get_piece_count(conn, ma1_ts, mId1, 739, m1shift)
             machine2_iot, m2hour = get_piece_count(conn, ma2_ts, mId2, 712, m2shift)
             machine3_iot, m3hour = get_piece_count(conn, ma3_ts, mId3, 739, m3shift)
-            print(ma1_ts,ma2_ts,ma3_ts)
+            #print(ma1_ts,ma2_ts,ma3_ts)
 
             op1_pieces = get_op_piece_count(conn,m1hour, user_id1, date, m1shift)
             op2_pieces = get_op_piece_count(conn,m2hour, user_id2, date, m2shift)
