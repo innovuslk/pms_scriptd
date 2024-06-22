@@ -22,17 +22,23 @@ def insert_data(data):
             INSERT INTO machine_data (machineId, timeStamp, incPieceCountAccepted, incPieceCountReject, incStitchCount)
             VALUES (%s, %s, %s, %s, %s)
         """
-        cursor.execute(query, (
-            data['machineId'], 
-            data['timeStamp'].strftime("%Y-%m-%d %H:%M:%S"), 
-            data['incPieceCountAccepted'], 
-            data['incPieceCountReject'], 
-            data['incStitchCount']
-        ))
-        connection.commit()
-        cursor.close()
-        connection.close()
-        return True
+        if data['incPieceCountAccepted']!= 0 or data['incPieceCountReject'] != 0 or data['incStitchCount'] != 0:
+            cursor.execute(query, (
+                data['machineId'], 
+                data['timeStamp'].strftime("%Y-%m-%d %H:%M:%S"), 
+                data['incPieceCountAccepted'], 
+                data['incPieceCountReject'], 
+                data['incStitchCount']
+            ))
+            connection.commit()
+            cursor.close()
+            connection.close()
+            return True
+        else:
+            connection.commit()
+            cursor.close()
+            connection.close()
+            return True
     except Error as e:
         print(f"Error: {e}")
         return False
