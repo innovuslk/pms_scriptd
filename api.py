@@ -39,15 +39,28 @@ def insert_data(data):
 
 @app.route('/', methods=['POST'])
 def receive_data():
-    data = request.json
-    utc_time = datetime.strptime(data['timeStamp'], "%Y-%m-%d %H:%M:%S")
-    ist_time = utc_time + timedelta(hours=5, minutes=30)
-    data['timeStamp'] = ist_time
-    
-    if insert_data(data):
-        return jsonify({"message": "Data inserted successfully"}), 201
-    else:
-        return jsonify({"message": "Failed to insert data"}), 500
+    try:
+        data = request.json
+        
+        # Check if any of the specified variables are not zero
+        if (data['incPieceCountAccepted'] != 0 or 
+            data['incPieceCountReject'] != 0 or 
+            data['incStitchCount'] != 0):
+
+            # Convert timeStamp to datetime and add 5 hours and 30 minutes to convert to IST
+            utc_time = datetime.strptime(data['timeStamp'], "%Y-%m-%d %H:%M:%S")
+            ist_time = utc_time + timedelta(hours=5, minutes=30)
+            data['timeStamp'] = ist_time
+
+            if insert_data(data):
+                return jsonify({"message": "Inserted"}), 200
+            else:
+                return jsonify({"message": "Failea"}), 400
+        else:
+            return jsonify({"message": "0"}), 200
+    except Exception as e:
+        return jsonify({"message": f"Bad request: {str(e)}"}), 400
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=2000)
