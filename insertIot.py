@@ -253,10 +253,10 @@ def main():
             mId2 = 22
             mId3 = 25
             #print(getMachineTS(conn,machine1))
-            time_t = timestamp = datetime(2024, 6, 22, 10, 50)
-            ma1_ts = time_t#datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId1))
-            ma2_ts = time_t#datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId2))
-            ma3_ts = time_t#datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId3))
+            #time_t = timestamp = datetime(2024, 6, 24, 10, 20)
+            ma1_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId1))
+            ma2_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId2))
+            ma3_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId3))
             #print(getMachineTS(conn,machine1))
             
             date = get_adjusted_date()
