@@ -253,7 +253,7 @@ def main():
             mId2 = 22
             mId3 = 25
             #print(getMachineTS(conn,machine1))
-            #time_t = timestamp = datetime(2024, 6, 24, 10, 20)
+            time_t = timestamp = datetime(2024, 6, 25, 8, 10)
             ma1_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId1))
             ma2_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId2))
             ma3_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId3))
@@ -276,15 +276,15 @@ def main():
             op3_pieces = get_op_piece_count(conn,m3hour, user_id3, date, m3shift)
         
             if ((machine1_iot != op1_pieces) and (machine1_iot > op1_pieces)):
-                insert_piece_count(conn, user_id1, ma1_ts, 'Pullout 1',machine1_iot - op1_pieces, m1shift, m1hour, lineNo1)
+                insert_piece_count(conn, user_id1, ma1_ts, 'Pullout 1',int(machine1_iot) - int(op1_pieces), m1shift, m1hour, lineNo1)
                 print (user_id1,'-',lineNo1,'-',m1shift,'-',m1hour,'-',machine1_iot,',',op1_pieces)
 
             if ((machine2_iot != op2_pieces) and (machine2_iot > op2_pieces)):
-                insert_piece_count(conn, user_id2, ma2_ts, 'Pullout 2',machine2_iot - op2_pieces, m2shift, m2hour, lineNo2)
+                insert_piece_count(conn, user_id2, ma2_ts, 'Pullout 2',int(machine2_iot) - int(op2_pieces), m2shift, m2hour, lineNo2)
                 print (user_id2,'-',lineNo2,'-',m2shift,'-',m2hour,'-',machine2_iot,',',op2_pieces)
                 
             if ((machine3_iot != op3_pieces) and (machine3_iot > op3_pieces)):
-                insert_piece_count(conn, user_id3, ma3_ts, 'LineEnd',machine3_iot - op3_pieces, m3shift, m3hour, lineNo3)
+                insert_piece_count(conn, user_id3, ma3_ts, 'LineEnd',int(machine3_iot) - int(op3_pieces), m3shift, m3hour, lineNo3)
                 print (user_id3,'-',lineNo3,'-',m3shift,'-',m3hour,'-',machine3_iot,',',op3_pieces)
 
         
