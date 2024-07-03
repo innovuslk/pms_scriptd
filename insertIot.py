@@ -205,7 +205,7 @@ def insert_piece_count(connection, userid, timestamp, operator ,pieceCount, shif
     connection.commit()
 
 
-def get_userid(connection,date, shift, operation):
+def get_userid(connection,date, shift, operation,line):
 
         if connection.is_connected():
             cursor = connection.cursor(dictionary=True)
@@ -214,11 +214,11 @@ def get_userid(connection,date, shift, operation):
             query = """
             SELECT userid, lineNo, Shift
             FROM operatorDailyAssignment
-            WHERE date = %s AND shift = %s AND operation = %s LIMIT 1
+            WHERE date = %s AND shift = %s AND operation = %s AND lineNo LIKE %s LIMIT 1
             """
 
             # Execute the query
-            cursor.execute(query, (date, shift, operation))
+            cursor.execute(query, (date, shift, operation,line))
             
             # Fetch the result
             result = cursor.fetchone()
@@ -255,7 +255,7 @@ def main():
             mId4 = 40
             mId5 = 41
             #print(getMachineTS(conn,machine1))
-            time_t = timestamp = datetime(2024, 6, 25, 8, 10)
+            time_t = timestamp = datetime(2024, 7, 3, 8, 10)
             ma1_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId1))
             ma2_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId2))
             ma3_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId3))
@@ -267,25 +267,25 @@ def main():
             lineshift1 = get_shift_for_line(conn,date, 'UP007%')
             lineshift2 = get_shift_for_line(conn,date, 'UP008%')
             print(lineshift1,lineshift2)
-            user_id1,lineNo1,m1shift = get_userid(conn,date,lineshift1,'Pullout 1')
-            user_id2,lineNo2,m2shift = get_userid(conn,date,lineshift1,'Pullout 2')
-            user_id3,lineNo3,m3shift = get_userid(conn,date,lineshift1, 'LineEnd')
-            user_id4,lineNo4,m4shift = get_userid(conn,date,lineshift2, 'Pullout 1')
-            user_id5,lineNo5,m5shift = get_userid(conn,date,lineshift2, 'Pullout 2')
+            user_id1,lineNo1,m1shift = get_userid(conn,date,lineshift1,'Pullout 1','UP007%')
+            user_id2,lineNo2,m2shift = get_userid(conn,date,lineshift1,'Pullout 2','UP007%')
+            user_id3,lineNo3,m3shift = get_userid(conn,date,lineshift1, 'LineEnd','UP007%')
+            user_id4,lineNo4,m4shift = get_userid(conn,date,lineshift2, 'Pullout 1','UP008%')
+            user_id5,lineNo5,m5shift = get_userid(conn,date,lineshift2, 'Pullout 2','UP008%')
             
             machine1_iot, m1hour = get_piece_count(conn, ma1_ts, mId1, 739, m1shift)
             machine2_iot, m2hour = get_piece_count(conn, ma2_ts, mId2, 712, m2shift)
             machine3_iot, m3hour = get_piece_count(conn, ma3_ts, mId3, 739, m3shift)
             machine4_iot, m4hour = get_piece_count(conn, ma4_ts, mId4, 739, m4shift)
             machine5_iot, m5hour = get_piece_count(conn, ma5_ts, mId5, 712, m5shift)
-        
+            #print(machine4_iot,machine5_iot)
 
             op1_pieces = get_op_piece_count(conn,m1hour, user_id1, date, m1shift)
             op2_pieces = get_op_piece_count(conn,m2hour, user_id2, date, m2shift)
             op3_pieces = get_op_piece_count(conn,m3hour, user_id3, date, m3shift)
             op4_pieces = get_op_piece_count(conn,m4hour, user_id4, date, m4shift)
             op5_pieces = get_op_piece_count(conn,m5hour, user_id5, date, m5shift)
-        
+            #print(op4_pieces,op5_pieces)
             if ((machine1_iot != op1_pieces) and (machine1_iot > op1_pieces)):
                 insert_piece_count(conn, user_id1, ma1_ts, 'Pullout 1',int(machine1_iot) - int(op1_pieces), m1shift, m1hour, lineNo1)
                 print (user_id1,'-',lineNo1,'-',m1shift,'-',m1hour,'-',machine1_iot,',',op1_pieces)
