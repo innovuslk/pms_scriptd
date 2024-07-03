@@ -252,8 +252,8 @@ def main():
             mId1 = 21
             mId2 = 22
             mId3 = 25
-            mId4 = 41
-            mId5 = 42
+            mId4 = 40
+            mId5 = 41
             #print(getMachineTS(conn,machine1))
             time_t = timestamp = datetime(2024, 6, 25, 8, 10)
             ma1_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId1))
