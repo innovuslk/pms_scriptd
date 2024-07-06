@@ -255,7 +255,7 @@ def main():
             mId4 = 40
             mId5 = 41
             #print(getMachineTS(conn,machine1))
-            time_t = timestamp = datetime(2024, 7, 3, 8, 10)
+            time_t = timestamp = datetime(2024, 7, 6, 8, 10)
             ma1_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId1))
             ma2_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId2))
             ma3_ts = datetime.now(pytz.timezone('Asia/Colombo'))#str(getMachineTS(conn,mId3))
@@ -264,39 +264,39 @@ def main():
             #print(getMachineTS(conn,machine1))
             
             date = get_adjusted_date()
-            lineshift1 = get_shift_for_line(conn,date, 'UP007%')
+            #lineshift1 = get_shift_for_line(conn,date, 'UP007%')
             lineshift2 = get_shift_for_line(conn,date, 'UP008%')
-            print(lineshift1,lineshift2)
-            user_id1,lineNo1,m1shift = get_userid(conn,date,lineshift1,'Pullout 1','UP007%')
-            user_id2,lineNo2,m2shift = get_userid(conn,date,lineshift1,'Pullout 2','UP007%')
-            user_id3,lineNo3,m3shift = get_userid(conn,date,lineshift1, 'LineEnd','UP007%')
+            #print(lineshift1,lineshift2)
+            #user_id1,lineNo1,m1shift = get_userid(conn,date,lineshift1,'Pullout 1','UP007%')
+            #user_id2,lineNo2,m2shift = get_userid(conn,date,lineshift1,'Pullout 2','UP007%')
+            #user_id3,lineNo3,m3shift = get_userid(conn,date,lineshift1, 'LineEnd','UP007%')
             user_id4,lineNo4,m4shift = get_userid(conn,date,lineshift2, 'Pullout 1','UP008%')
             user_id5,lineNo5,m5shift = get_userid(conn,date,lineshift2, 'Pullout 2','UP008%')
             
-            machine1_iot, m1hour = get_piece_count(conn, ma1_ts, mId1, 739, m1shift)
-            machine2_iot, m2hour = get_piece_count(conn, ma2_ts, mId2, 712, m2shift)
-            machine3_iot, m3hour = get_piece_count(conn, ma3_ts, mId3, 739, m3shift)
+            #machine1_iot, m1hour = get_piece_count(conn, ma1_ts, mId1, 739, m1shift)
+            #machine2_iot, m2hour = get_piece_count(conn, ma2_ts, mId2, 712, m2shift)
+            #machine3_iot, m3hour = get_piece_count(conn, ma3_ts, mId3, 739, m3shift)
             machine4_iot, m4hour = get_piece_count(conn, ma4_ts, mId4, 739, m4shift)
             machine5_iot, m5hour = get_piece_count(conn, ma5_ts, mId5, 712, m5shift)
             #print(machine4_iot,machine5_iot)
 
-            op1_pieces = get_op_piece_count(conn,m1hour, user_id1, date, m1shift)
-            op2_pieces = get_op_piece_count(conn,m2hour, user_id2, date, m2shift)
-            op3_pieces = get_op_piece_count(conn,m3hour, user_id3, date, m3shift)
+            #op1_pieces = get_op_piece_count(conn,m1hour, user_id1, date, m1shift)
+            #op2_pieces = get_op_piece_count(conn,m2hour, user_id2, date, m2shift)
+            #op3_pieces = get_op_piece_count(conn,m3hour, user_id3, date, m3shift)
             op4_pieces = get_op_piece_count(conn,m4hour, user_id4, date, m4shift)
             op5_pieces = get_op_piece_count(conn,m5hour, user_id5, date, m5shift)
             #print(op4_pieces,op5_pieces)
-            if ((machine1_iot != op1_pieces) and (machine1_iot > op1_pieces)):
-                insert_piece_count(conn, user_id1, ma1_ts, 'Pullout 1',int(machine1_iot) - int(op1_pieces), m1shift, m1hour, lineNo1)
-                print (user_id1,'-',lineNo1,'-',m1shift,'-',m1hour,'-',machine1_iot,',',op1_pieces)
+            #if ((machine1_iot != op1_pieces) and (machine1_iot > op1_pieces)):
+             #   insert_piece_count(conn, user_id1, ma1_ts, 'Pullout 1',int(machine1_iot) - int(op1_pieces), m1shift, m1hour, lineNo1)
+              #  print (user_id1,'-',lineNo1,'-',m1shift,'-',m1hour,'-',machine1_iot,',',op1_pieces)
 
-            if ((machine2_iot != op2_pieces) and (machine2_iot > op2_pieces)):
-                insert_piece_count(conn, user_id2, ma2_ts, 'Pullout 2',int(machine2_iot) - int(op2_pieces), m2shift, m2hour, lineNo2)
-                print (user_id2,'-',lineNo2,'-',m2shift,'-',m2hour,'-',machine2_iot,',',op2_pieces)
+            #if ((machine2_iot != op2_pieces) and (machine2_iot > op2_pieces)):
+             #   insert_piece_count(conn, user_id2, ma2_ts, 'Pullout 2',int(machine2_iot) - int(op2_pieces), m2shift, m2hour, lineNo2)
+              #  print (user_id2,'-',lineNo2,'-',m2shift,'-',m2hour,'-',machine2_iot,',',op2_pieces)
                 
-            if ((machine3_iot != op3_pieces) and (machine3_iot > op3_pieces)):
-                insert_piece_count(conn, user_id3, ma3_ts, 'LineEnd',int(machine3_iot) - int(op3_pieces), m3shift, m3hour, lineNo3)
-                print (user_id3,'-',lineNo3,'-',m3shift,'-',m3hour,'-',machine3_iot,',',op3_pieces)
+            #if ((machine3_iot != op3_pieces) and (machine3_iot > op3_pieces)):
+             #   insert_piece_count(conn, user_id3, ma3_ts, 'LineEnd',int(machine3_iot) - int(op3_pieces), m3shift, m3hour, lineNo3)
+              #  print (user_id3,'-',lineNo3,'-',m3shift,'-',m3hour,'-',machine3_iot,',',op3_pieces)
 
             if ((machine4_iot != op4_pieces) and (machine4_iot > op4_pieces)):
                 insert_piece_count(conn, user_id4, ma4_ts, 'Pullout 1',int(machine4_iot) - int(op4_pieces), m4shift, m4hour, lineNo4)
